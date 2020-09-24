@@ -18,5 +18,10 @@ public class TransactionalAccountController {
 	  Bearer getOneBearer(@PathVariable String document) {
 	    return service.getBearerByDocument(document);
 	  }
+	
+	@GetMapping("/hello")
+	 String helloWorld() {
+	    return "Hello World!";
+	  }
 
 }

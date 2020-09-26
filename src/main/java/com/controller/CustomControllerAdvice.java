@@ -25,7 +25,7 @@ public class CustomControllerAdvice {
 	final static Logger log = Logger.getLogger(CustomControllerAdvice.class);
 	
     @ExceptionHandler({HttpMessageNotReadableException.class, HttpMessageNotWritableException.class, JsonMappingException.class, 
-    	JsonParseException.class, InvalidOperationException.class, InvalidJsonException.class, AlreadyExistsException.class, HttpMediaTypeNotSupportedException.class })
+    	JsonParseException.class, InvalidOperationException.class, InvalidJsonException.class, HttpMediaTypeNotSupportedException.class })
     public ResponseEntity<RequestReturn> handleMessageNotReadableException(Exception ex) {
 		log.error(ex.getClass().getName() + " " + ex.getMessage());
 		RequestReturn reqReturn = new RequestReturn(HttpStatus.BAD_REQUEST, ex.getMessage());
@@ -44,6 +44,13 @@ public class CustomControllerAdvice {
 		log.error(ex.getClass().getName() + " "+ ex.getMessage());
 		RequestReturn reqReturn = new RequestReturn(HttpStatus.NOT_FOUND, ex.getMessage());
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(reqReturn);
+    }
+    
+    @ExceptionHandler(AlreadyExistsException.class)
+    public ResponseEntity<RequestReturn> handlerAlreadyExistsException(AlreadyExistsException ex) {
+		log.error(ex.getClass().getName() + " "+ ex.getMessage());
+		RequestReturn reqReturn = new RequestReturn(HttpStatus.CONFLICT, ex.getMessage());
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(reqReturn);
     }
 		
 	@ExceptionHandler(RuntimeException.class)

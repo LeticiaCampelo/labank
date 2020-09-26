@@ -29,21 +29,21 @@ public class BearerController {
 		return ResponseEntity.status(reqReturn.getReturnCode()).body(reqReturn);
 	}
 	
-	@GetMapping("/bearers/{id}")
+	@GetMapping("/bearer/{id}")
 	@ResponseBody
 	ResponseEntity<RequestReturn> getBearerByDocument(@PathVariable (value = "id", required = true) String document) {
 		RequestReturn reqReturn = service.getBearerByDocument(document);
 		return ResponseEntity.status(reqReturn.getReturnCode()).body(reqReturn);
 	 }
 	
-	@PostMapping("bearers/")
+	@PostMapping("bearer/")
 	@ResponseBody
 	ResponseEntity<RequestReturn> createBearer(@RequestBody Bearer bearer) {
 		RequestReturn reqReturn = service.createBearer(bearer);
 		return ResponseEntity.status(reqReturn.getReturnCode()).body(reqReturn);
 	}
 	
-	@PutMapping("bearers/{id}")
+	@PutMapping("bearer/{id}")
 	@ResponseBody
 	ResponseEntity<RequestReturn> updateBearer(@PathVariable (value = "id", required = true) String document, @RequestBody Bearer bearer) {
 		RequestReturn reqReturn = service.updateBearer(bearer, document);

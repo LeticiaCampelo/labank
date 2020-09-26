@@ -8,5 +8,6 @@ import com.model.Account;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, String>{	
 	Account findByAccountNumber(String accountNumber);
+	Account findByBearer(String document);
 
 }

@@ -37,7 +37,7 @@ public class Account implements Serializable{
 	
 	@NotNull
 	@Column(name = "fk_agency_number")
-	private int agency;
+	private Integer agency;
 	
 
 	public String getAccountNumber() {
@@ -64,11 +64,11 @@ public class Account implements Serializable{
 		this.bearer = bearer;
 	}
 
-	public int getAgency() {
+	public Integer getAgency() {
 		return agency;
 	}
 
-	public void setAgency(int agency) {
+	public void setAgency(Integer agency) {
 		this.agency = agency;
 	}	
 	

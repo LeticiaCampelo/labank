@@ -33,7 +33,7 @@ public class Bearer implements Serializable {
 	
 	@NotNull
 	@Column(name = "bearer_type")
-	private int bearerType;
+	private Integer bearerType;
 	// type = 0 for a company, type 1 for a person.
 
 	public String getBearerDocument() {
@@ -52,7 +52,7 @@ public class Bearer implements Serializable {
 		this.bearerName = bearerName;
 	}
 
-	public int getBearerType() {
+	public Integer getBearerType() {
 		return bearerType;
 	}
 

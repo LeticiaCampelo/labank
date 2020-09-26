@@ -3,12 +3,14 @@ package com.service;
 import java.util.Calendar;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.exceptions.InvalidDataException;
+import com.exceptions.InvalidOperationException;
+import com.exceptions.NotFoundException;
 import com.model.Account;
-import com.model.RequestReturn;
 import com.model.Transaction;
 import com.repository.AccountRepository;
 import com.repository.TransactionRepository;
@@ -16,92 +18,74 @@ import com.repository.TransactionRepository;
 @Service
 public class TransactionServiceImpl implements TransactionService{
 	
-	private static final int BAD_REQUEST = 400;
 	private static final int SUCCESS = 200;
-	
+
 	@Autowired
 	private TransactionRepository transactionRepository;
 
 	@Autowired
 	private AccountRepository accountRepository;
 
+	final static Logger log = Logger.getLogger(TransactionServiceImpl.class);
+
 	@Override
-	public RequestReturn extract(String accountNumber) {
-		if(accountRepository.existsById(accountNumber)) {
-			List<Transaction> extract = transactionRepository.findByAccountNumber(accountNumber);
-			return setReturn(SUCCESS, "Here is your extract: ", extract);
+	public List<Transaction> extract(String accountNumber) throws NotFoundException{
+		accountRepository.findById(accountNumber).orElseThrow(() -> new NotFoundException("Account doesen't exist.")); 
+		List<Transaction> extract = transactionRepository.findByAccountNumber(accountNumber);
+		if(extract == null)
+			throw new NotFoundException("Error getting extract");
+		log.info(String.format("%d - transactions found: %s", SUCCESS, extract));
+		return extract;
+	}
+
+	@Override
+	public Transaction withdraw(Transaction transaction) throws InvalidOperationException, NotFoundException {
+		Account account = accountRepository.findById(transaction.getAccountNumber()).orElseThrow(() -> new NotFoundException("Account doesen't exist.")); 
+		if(transaction.getTransactionAmount() > 0) {
+			if(account.getAccountBalance() <= transaction.getTransactionAmount()) {
+				throw new InvalidOperationException("This account doesn't have enough cash");
+			}else {
+				return doTransaction(transaction, account, "D");
+			}
 		}else{
-			return setReturn(BAD_REQUEST, "This account doesn't exist", null);
+			throw new InvalidOperationException("Invalid transaction amount.");
 		}
 	}
 
 	@Override
-	public RequestReturn withdraw(Transaction transaction) {
-		try{
-			System.out.println(transaction.getAccountNumber());
-			if(accountRepository.existsById(transaction.getAccountNumber())) {
-				Account account = accountRepository.findByAccountNumber(transaction.getAccountNumber());
-				if(transaction.getTransactionAmount() > 0) {
-					if(account.getAccountBalance() <= transaction.getTransactionAmount()) {
-						return setReturn(BAD_REQUEST, "This account doesn't have enough cash", null);
-					}else {
-						doTransaction(transaction, account, "D");
-						return setReturn(SUCCESS, "Withdraw succeed! ", transaction);
-					}
-
-
-				}else{
-					return setReturn(BAD_REQUEST, "Invalid operation", null);
-				}
-			}else {
-				return setReturn(BAD_REQUEST, "This account doesn't exist", null);
-			}
-		}catch (InvalidDataException e) {
-			return setReturn(BAD_REQUEST, e.getErrorMsg(), null);
+	public Transaction deposit(Transaction transaction) throws InvalidOperationException, NotFoundException  {
+		Account account = accountRepository.findById(transaction.getAccountNumber()).orElseThrow(() -> new NotFoundException("Account doesen't exist.")); 
+		if(transaction.getTransactionAmount() > 0) {
+			return doTransaction(transaction, account, "C");
 		}
-	}
-
-	@Override
-	public RequestReturn deposit(Transaction transaction) {
-		try {
-			if(accountRepository.existsById(transaction.getAccountNumber())) {
-				Account account = accountRepository.findByAccountNumber(transaction.getAccountNumber());
-				if(transaction.getTransactionAmount() > 0) {
-
-					doTransaction(transaction, account, "C");
-
-					return setReturn(SUCCESS, "Deposit succeed! ", transaction);
-				}
-				else {
-					return setReturn(BAD_REQUEST, "Invalid operation", null);
-				}
-			}else {
-				return setReturn(BAD_REQUEST, "This account doesn't exist", null);
-			}
-		} catch (InvalidDataException e) {
-			return setReturn(BAD_REQUEST, e.getErrorMsg(), null);
+		else {
+			throw new InvalidOperationException("Invalid transaction amount.");
 		}
 	}
 
 
-	private RequestReturn setReturn(int code, String message, Object object) {
-		return new RequestReturn(code, message, object);
-
-	}
-	
-
-	private void doTransaction(Transaction transaction, Account account, String type) throws InvalidDataException{
+	private Transaction doTransaction(Transaction transaction, Account account, String type) throws InvalidOperationException{
 		if(type.equals("C")) {
-			account.setAccountBalance(account.getAccountBalance() + transaction.getTransactionAmount());
-		}else if(type.equals("D")){
-			account.setAccountBalance(account.getAccountBalance() - transaction.getTransactionAmount());
+			account.setAccountBalance(deposit(transaction, account));
+		}else{
+			account.setAccountBalance(withdraw(transaction, account));
 			transaction.setTransactionAmount(-transaction.getTransactionAmount());
-		} else {
-			throw new InvalidDataException("Invalid transaction type");
 		}
 		accountRepository.save(account);
 		transaction.setTransactionDate(Calendar.getInstance().getTime());
 		transactionRepository.save(transaction);
+		log.info(String.format("%d - %s transaction succeed: %s", SUCCESS, type, transaction));
+		return transaction;
+	}
+
+	private double withdraw(Transaction transaction, Account account) {
+		log.info(String.format("taking out %s from the account %s", transaction.getTransactionAmount(), transaction.getAccountNumber()));
+		return account.getAccountBalance() - transaction.getTransactionAmount();
+	}
+
+	private double deposit(Transaction transaction, Account account) {
+		log.info(String.format("depositing %s in the account %s", transaction.getTransactionAmount(), transaction.getAccountNumber()));
+		return account.getAccountBalance() + transaction.getTransactionAmount();
 	}
 
 }

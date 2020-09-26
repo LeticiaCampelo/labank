@@ -1,7 +1,9 @@
 package com.controller;
 
+import java.util.List;
+
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,43 +13,67 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.exceptions.AlreadyExistsException;
+import com.exceptions.InvalidJsonException;
+import com.exceptions.InvalidOperationException;
+import com.exceptions.NotFoundException;
+import com.model.Account;
 import com.model.Bearer;
-import com.model.RequestReturn;
 import com.service.BearerService;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/bearer")
 public class BearerController {
+	
+	final static Logger log = Logger.getLogger(BearerController.class);
 	
 	@Autowired
 	private BearerService service;
 	
-	@GetMapping("/bearers/allBearers")
+	@GetMapping("/allBearers")
 	@ResponseBody
-	ResponseEntity<RequestReturn> getAllBearers() {
-		RequestReturn reqReturn = service.getAllBearers();		
-		return ResponseEntity.status(reqReturn.getReturnCode()).body(reqReturn);
+	List<Bearer> getAllBearers() throws NotFoundException {
+		log.info("GET /api/v1/bearer/allBearers");
+		List<Bearer> reqReturn = service.getAllBearers();		
+		return reqReturn;
 	}
 	
-	@GetMapping("/bearer/{id}")
+	@GetMapping("/{id}")
 	@ResponseBody
-	ResponseEntity<RequestReturn> getBearerByDocument(@PathVariable (value = "id", required = true) String document) {
-		RequestReturn reqReturn = service.getBearerByDocument(document);
-		return ResponseEntity.status(reqReturn.getReturnCode()).body(reqReturn);
+	Bearer getBearerByDocument(@PathVariable (value = "id", required = true) String document) throws NotFoundException, InvalidJsonException {
+		log.info("GET /api/v1/bearer/{id}");
+		validateQueryParams(document);
+		Bearer reqReturn = service.getBearerByDocument(document);
+		return reqReturn;
 	 }
 	
-	@PostMapping("bearer/")
+	@PostMapping("/")
 	@ResponseBody
-	ResponseEntity<RequestReturn> createBearer(@RequestBody Bearer bearer) {
-		RequestReturn reqReturn = service.createBearer(bearer);
-		return ResponseEntity.status(reqReturn.getReturnCode()).body(reqReturn);
+	Bearer createBearer(@RequestBody Bearer newBearer) throws InvalidOperationException, AlreadyExistsException, InvalidJsonException {
+		log.info("POST /api/v1/bearer/");
+		validateRequestBody(newBearer);
+		Bearer reqReturn = service.createBearer(newBearer);
+		return reqReturn;
 	}
 	
-	@PutMapping("bearer/{id}")
+	@PutMapping("/{id}")
 	@ResponseBody
-	ResponseEntity<RequestReturn> updateBearer(@PathVariable (value = "id", required = true) String document, @RequestBody Bearer bearer) {
-		RequestReturn reqReturn = service.updateBearer(bearer, document);
-		return ResponseEntity.status(reqReturn.getReturnCode()).body(reqReturn);
+	Bearer updateBearer(@PathVariable (value = "id", required = true) String document, @RequestBody Bearer bearer) throws NotFoundException, InvalidOperationException, InvalidJsonException  {
+		log.info("PUT /api/v1/bearer/{id}");
+		validateQueryParams(document);
+		Bearer reqReturn = service.updateBearer(bearer, document);
+		return reqReturn;
 	}
 
+	private void validateQueryParams(String document) throws InvalidJsonException {
+		if(document == null) {
+			throw new InvalidJsonException("Missing arguments");	
+		}
+	}
+	
+	private void validateRequestBody(Bearer bearer) throws InvalidJsonException{
+		if(bearer.getBearerDocument() == null || bearer.getBearerName() == null || bearer.getBearerType() == null) {
+			throw new InvalidJsonException("Missing arguments");
+		}
+	}
 }

@@ -3,8 +3,8 @@ package com.exceptions;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "404 Not Found")
-public class NotFoundException extends RuntimeException  {
+@ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Invalid operation")
+public class InvalidOperationException extends Exception {
 	/**
 	 * 
 	 */
@@ -12,20 +12,17 @@ public class NotFoundException extends RuntimeException  {
 	
 	private String message;
 	
-	public NotFoundException(String message) {
+	public InvalidOperationException(String message) {
 		setMessage(message);
 	}
-
-	public String getMessage() {
-		return message;
-	}
+	
 
 	public void setMessage(String message) {
 		this.message = message;
 	}
-
 	
-	
-
+	public String getMessage() {
+		return this.message;
+	}
 
 }

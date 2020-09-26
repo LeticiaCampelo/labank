@@ -1,12 +1,16 @@
 package com.service;
 
+import java.util.List;
+
+import com.exceptions.AlreadyExistsException;
+import com.exceptions.InvalidJsonException;
+import com.exceptions.NotFoundException;
 import com.model.Account;
-import com.model.RequestReturn;
 
 public interface AccountService {
 	
-	RequestReturn getAllAccounts();
-	RequestReturn getAccountByAccountNumber(String accountNumber);
-	RequestReturn createAccount(Account account);
+	List<Account> getAllAccounts() throws NotFoundException;
+	Account getAccountByAccountNumber(String accountNumber) throws NotFoundException;
+	Account createAccount(Account account) throws NotFoundException, AlreadyExistsException, InvalidJsonException;
 
 }

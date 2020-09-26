@@ -3,8 +3,8 @@ package com.exceptions;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "404 Not Found")
-public class InvalidDataException extends Exception {
+@ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Already exists")
+public class AlreadyExistsException extends Exception {
 	/**
 	 * 
 	 */
@@ -12,7 +12,7 @@ public class InvalidDataException extends Exception {
 	
 	private String message;
 	
-	public InvalidDataException(String message) {
+	public AlreadyExistsException(String message) {
 		setMessage(message);
 	}
 	
@@ -21,7 +21,7 @@ public class InvalidDataException extends Exception {
 		this.message = message;
 	}
 	
-	public String getErrorMsg() {
+	public String getMessage() {
 		return this.message;
 	}
 

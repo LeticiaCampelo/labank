@@ -1,10 +1,13 @@
 package com.service;
 
-import com.model.RequestReturn;
+import java.util.List;
+
+import com.exceptions.InvalidOperationException;
+import com.exceptions.NotFoundException;
 import com.model.Transaction;
 
 public interface TransactionService {
-	RequestReturn extract(String accountNumber);
-	RequestReturn withdraw(Transaction transaction);
-	RequestReturn deposit(Transaction transaction);
+	List<Transaction> extract(String accountNumber) throws NotFoundException;
+	Transaction withdraw(Transaction transaction) throws InvalidOperationException, NotFoundException;
+	Transaction deposit(Transaction transaction) throws InvalidOperationException, NotFoundException;
 }

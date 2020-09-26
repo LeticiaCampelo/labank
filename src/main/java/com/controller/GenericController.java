@@ -18,10 +18,16 @@ public class GenericController {
 	@ResponseBody
 	ResponseEntity<String> getAllBearers() {
 		log.info("GET /");
-		String routes = "Bearer routes: GET and PUT https://labank.herokuapp.com/api/v1/bearer/{id} and POST https://labank.herokuapp.com/api/v1//bearer\n\n"
-					  + "Account routes: GET https://labank.herokuapp.com/api/v1/account/{id}, POST https://labank.herokuapp.com/api/v1/account\n\n"
-					  + "Transactions routes: GET https://labank.herokuapp.com/api/v1/transaction/{id}, POST https://labank.herokuapp.com/api/v1/transaction/deposit and "
-					  + "https://labank.herokuapp.com/api/v1/transaction/withdraw";
+		String routes = "Bearer routes:\n"
+						+ "GET and PUT https://labank.herokuapp.com/api/v1/bearer/{id} "
+						+ "\nPOST https://labank.herokuapp.com/api/v1/bearer\n\n"
+					    + "Account routes:"
+					    + "\nGET https://labank.herokuapp.com/api/v1/account/{id},"
+					    + "\nPOST https://labank.herokuapp.com/api/v1/account\n\n"
+					    + "Transactions routes: "
+					    + "\nGET https://labank.herokuapp.com/api/v1/transaction/{id}, "
+					    + "\nPOST https://labank.herokuapp.com/api/v1/transaction/deposit"
+					    + "\n     https://labank.herokuapp.com/api/v1/transaction/withdraw";
 		return ResponseEntity.status(SUCCESS).body(routes);
 	}
 }

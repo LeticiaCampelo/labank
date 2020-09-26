@@ -22,13 +22,13 @@ import com.service.TransactionService;
 @RestController
 @RequestMapping("/api/v1/transaction")
 public class TransactionController {
-	
+
 	final static Logger log = Logger.getLogger(TransactionController.class);
 	private Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
-	
+
 	@Autowired
 	private TransactionService service;
-	
+
 	@GetMapping("/{id}")
 	@ResponseBody
 	List<Transaction> getExtract(@PathVariable (value = "id", required = true) String accountNumber) throws NotFoundException, InvalidJsonException {
@@ -36,8 +36,8 @@ public class TransactionController {
 		validateQueryParams(accountNumber);
 		List<Transaction> reqReturn = service.extract(accountNumber);
 		return reqReturn;
-	 }
-		
+	}
+
 	@ResponseBody
 	@PostMapping("/deposit")
 	Transaction deposit(@RequestBody Transaction transaction) throws InvalidOperationException, NotFoundException, InvalidJsonException {
@@ -46,7 +46,7 @@ public class TransactionController {
 		Transaction reqReturn = service.deposit(transaction);
 		return reqReturn;
 	}	
-	
+
 	@ResponseBody
 	@PostMapping("/withdraw")
 	Transaction withdraw(@RequestBody Transaction transaction) throws InvalidOperationException, NotFoundException, InvalidJsonException {
@@ -55,13 +55,13 @@ public class TransactionController {
 		Transaction reqReturn = service.withdraw(transaction);
 		return reqReturn;
 	}
-	
+
 	private void validateQueryParams(String accountNumber) throws InvalidJsonException {
 		if(accountNumber == null || !pattern.matcher(accountNumber).matches()) {
 			throw new InvalidJsonException("Missing or invalid arguments");
 		}
 	}
-	
+
 	private void validateRequestBody(Transaction transaction) throws InvalidJsonException{
 		if((transaction.getTransactionAmount() == null || transaction.getAccountNumber() == null) || transaction.getAccountNumber().equals("")) {
 			throw new InvalidJsonException("Missing or invalid arguments");

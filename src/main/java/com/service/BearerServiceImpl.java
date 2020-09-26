@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.exceptions.AlreadyExistsException;
@@ -15,13 +14,13 @@ import com.repository.BearerRepository;
 
 @Service
 public class BearerServiceImpl implements BearerService {
-	
+
 	private static final int SUCCESS = 200;
-	
+
 	@Autowired
 	private BearerRepository bearerRepository;
 	final static Logger log = Logger.getLogger(BearerServiceImpl.class);
-	
+
 	@Override
 	public List<Bearer> getAllBearers() throws NotFoundException {
 		List<Bearer> bearers = (List<Bearer>) bearerRepository.findAll();
@@ -31,24 +30,22 @@ public class BearerServiceImpl implements BearerService {
 		log.info(String.format("%d - bearers found: %s", SUCCESS, bearers));
 		return bearers;
 	}
-	
+
 	public Bearer getBearerByDocument(String document) throws NotFoundException{
-	    	Bearer bearer = bearerRepository.findById(document).orElseThrow(() -> new NotFoundException(String.format("Bearer %s not found", document)));
-	    	log.info(String.format("%d - bearer found: %s", SUCCESS, bearer));
-	    	return bearer;		 
-	  }
-	
+		Bearer bearer = bearerRepository.findById(document).orElseThrow(() -> new NotFoundException(String.format("Bearer %s not found", document)));
+		log.info(String.format("%d - bearer found: %s", SUCCESS, bearer));
+		return bearer;		 
+	}
+
 	@Override
 	public Bearer createBearer(Bearer newBearer) throws InvalidOperationException, AlreadyExistsException {
-		newBearer.getBearerDocument().replaceAll("[./-]", "");
-		validateBearer(newBearer);
-		bearerRepository.findById(newBearer.getBearerDocument()).orElseThrow(()-> new AlreadyExistsException("Bearer already registered"));						
+		validateBearer(newBearer);							
 		Bearer bearer = bearerRepository.save(newBearer);
 		log.info(String.format("%d - bearer created: %s", SUCCESS, bearer));
 		return bearer;	
 
 	}
-	
+
 	@Override
 	public Bearer updateBearer(Bearer bearerDetails, String id) throws InvalidOperationException, NotFoundException{
 		Bearer bearer = bearerRepository.findById(id).orElseThrow(() -> new NotFoundException("Bearer not found"));
@@ -61,11 +58,15 @@ public class BearerServiceImpl implements BearerService {
 		log.info(String.format("%d - bearer updated: %s", SUCCESS, bearer));
 		return bearer;
 	}
-	
-	private void validateBearer(Bearer newBearer) throws InvalidOperationException {
+
+	private void validateBearer(Bearer newBearer) throws InvalidOperationException, AlreadyExistsException {
+		newBearer.getBearerDocument().replaceAll("[./-]", "");
 		if((newBearer.getBearerType() == 1 && newBearer.getBearerDocument().length() != 11) || 
 				(newBearer.getBearerType() == 0 && newBearer.getBearerDocument().length() != 14)) {
 			throw new InvalidOperationException("Invalid document number");
+		}
+		if(bearerRepository.existsById(newBearer.getBearerDocument())) {
+			throw new AlreadyExistsException("Bearer already registered");	
 		}
 	}
 

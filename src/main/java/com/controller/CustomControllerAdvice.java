@@ -25,7 +25,7 @@ public class CustomControllerAdvice {
 	final static Logger log = Logger.getLogger(CustomControllerAdvice.class);
 	
     @ExceptionHandler({HttpMessageNotReadableException.class, HttpMessageNotWritableException.class, JsonMappingException.class, 
-    	JsonParseException.class, NotFoundException.class, InvalidOperationException.class, InvalidJsonException.class, AlreadyExistsException.class, HttpMediaTypeNotSupportedException.class })
+    	JsonParseException.class, InvalidOperationException.class, InvalidJsonException.class, AlreadyExistsException.class, HttpMediaTypeNotSupportedException.class })
     public ResponseEntity<RequestReturn> handleMessageNotReadableException(Exception ex) {
 		log.error(ex.getClass().getName() + " " + ex.getMessage());
 		RequestReturn reqReturn = new RequestReturn(HttpStatus.BAD_REQUEST, ex.getMessage());
@@ -33,10 +33,17 @@ public class CustomControllerAdvice {
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<RequestReturn> handlerAlreadyExistsException(HttpRequestMethodNotSupportedException ex) {
+    public ResponseEntity<RequestReturn> handlerHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
 		log.error(ex.getClass().getName() + " "+ ex.getMessage());
 		RequestReturn reqReturn = new RequestReturn(HttpStatus.METHOD_NOT_ALLOWED, ex.getMessage());
 		return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(reqReturn);
+    }
+    
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<RequestReturn> handlerNotFoundException(NotFoundException ex) {
+		log.error(ex.getClass().getName() + " "+ ex.getMessage());
+		RequestReturn reqReturn = new RequestReturn(HttpStatus.NOT_FOUND, ex.getMessage());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(reqReturn);
     }
 		
 	@ExceptionHandler(RuntimeException.class)

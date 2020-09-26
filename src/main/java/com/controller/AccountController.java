@@ -22,13 +22,13 @@ import com.service.AccountService;
 @RestController
 @RequestMapping("/api/v1/account")
 public class AccountController {
-	
+
 	private Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 	final static Logger log = Logger.getLogger(AccountController.class);
-	
+
 	@Autowired
 	private AccountService service;
-	
+
 	@GetMapping("/allAccounts")
 	@ResponseBody
 	List<Account> getAllAccounts() throws NotFoundException {
@@ -36,7 +36,7 @@ public class AccountController {
 		List<Account> reqReturn = service.getAllAccounts();		
 		return reqReturn;
 	}
-	
+
 	@GetMapping("/{id}")
 	@ResponseBody
 	Account getAccountByNumber(@PathVariable (value = "id", required = true) String accountNumber) throws NotFoundException, InvalidJsonException {
@@ -44,8 +44,8 @@ public class AccountController {
 		validateQueryParams(accountNumber);
 		Account reqReturn = service.getAccountByAccountNumber(accountNumber);
 		return reqReturn;
-	 }
-	
+	}
+
 	@PostMapping("/")
 	@ResponseBody
 	Account createAccount(@RequestBody Account account) throws NotFoundException, AlreadyExistsException, InvalidJsonException {
@@ -54,13 +54,13 @@ public class AccountController {
 		Account reqReturn = service.createAccount(account);
 		return reqReturn;
 	}
-	
+
 	private void validateQueryParams(String accountNumber) throws InvalidJsonException {
 		if(accountNumber == null || !pattern.matcher(accountNumber).matches()) {
 			throw new InvalidJsonException("Missing or invalid arguments");	
 		}
 	}
-	
+
 	private void validateRequestBody(Account account) throws InvalidJsonException{
 		if(account.getAccountNumber() == null || account.getBearer() == null || account.getAgency() == null) {
 			throw new InvalidJsonException("Missing or invalid arguments");

@@ -25,13 +25,14 @@ import com.service.BearerService;
 @RestController
 @RequestMapping("/api/v1/bearer")
 public class BearerController {
-	
+
 	final static Logger log = Logger.getLogger(BearerController.class);
-	
+
 	@Autowired
 	private BearerService service;
 	private Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
-	
+
+
 	@GetMapping("/allBearers")
 	@ResponseBody
 	List<Bearer> getAllBearers() throws NotFoundException {
@@ -39,7 +40,7 @@ public class BearerController {
 		List<Bearer> reqReturn = service.getAllBearers();		
 		return reqReturn;
 	}
-	
+
 	@GetMapping("/{id}")
 	@ResponseBody
 	Bearer getBearerByDocument(@PathVariable (value = "id", required = true) String document) throws NotFoundException, InvalidJsonException {
@@ -47,8 +48,8 @@ public class BearerController {
 		validateQueryParams(document);
 		Bearer reqReturn = service.getBearerByDocument(document);
 		return reqReturn;
-	 }
-	
+	}
+
 	@PostMapping("/")
 	@ResponseBody
 	Bearer createBearer(@RequestBody Bearer newBearer) throws InvalidOperationException, AlreadyExistsException, InvalidJsonException {
@@ -57,7 +58,7 @@ public class BearerController {
 		Bearer reqReturn = service.createBearer(newBearer);
 		return reqReturn;
 	}
-	
+
 	@PutMapping("/{id}")
 	@ResponseBody
 	Bearer updateBearer(@PathVariable (value = "id", required = true) String document, @RequestBody Bearer bearer) throws NotFoundException, InvalidOperationException, InvalidJsonException {
@@ -73,9 +74,9 @@ public class BearerController {
 			throw new InvalidJsonException("Missing or invalid arguments");	
 		}
 	}
-	
+
 	private void validateRequestBody(Bearer bearer) throws InvalidJsonException{
-		if(bearer.getBearerDocument() == null || bearer.getBearerName() == null || bearer.getBearerType() == null) {
+		if(bearer.getBearerDocument() == null || bearer.getBearerName() == null || bearer.getBearerType() == null){
 			throw new InvalidJsonException("Missing or invalid arguments");
 		}
 	}

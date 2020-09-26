@@ -10,7 +10,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sun.istack.NotNull;
 
 import lombok.Data;
@@ -36,7 +35,6 @@ public class Transaction implements Serializable {
 	 private Double transactionAmount;
 	 
 	 @Column(name = "transaction_date")
-	 @JsonFormat(pattern="dd/MM/yyyy'")
 	 private Date transactionDate;
 	 	 
 	 @NotNull

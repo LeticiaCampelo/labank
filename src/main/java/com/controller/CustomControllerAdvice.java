@@ -46,5 +46,4 @@ public class CustomControllerAdvice {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(reqReturn);
 	}
 
-
 }

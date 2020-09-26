@@ -1,31 +1,30 @@
 package com.model;
 
-import javax.persistence.CascadeType;
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.sun.istack.NotNull;
+
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
+@NoArgsConstructor
 @Table(schema = "labank", name = "agency")
-public class Agency {
+public class Agency implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	@Id
+	@NotNull
 	@Column(name = "agency_number")
 	private Long id;
 	
-	@OneToMany(mappedBy = "agency", cascade = CascadeType.ALL)
-	private Account account;
-
-	public Agency(Long id) {		
-		this.id = id;
-	}
-	public Agency() {
-		//default constructor
-	}
-	
-
 }

@@ -2,14 +2,16 @@ package com.repository;
 
 import java.util.List;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import com.model.Bearer;
 
-public interface BearerRepository extends CrudRepository<Bearer, String> {
+@Repository
+public interface BearerRepository extends JpaRepository<Bearer, String> {
 	
-	Bearer findByDocument(String document);
-	List<Bearer> findByName(String name);
+	Bearer findByBearerDocument(String document);
+	List<Bearer> findByBearerName(String name);
 	
 
 }

@@ -1,51 +1,75 @@
 package com.model;
 
-import javax.persistence.CascadeType;
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.MapsId;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.sun.istack.NotNull;
+
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity	
+@NoArgsConstructor
 @Table(schema = "labank", name = "account")
-public class Account {
+public class Account implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	@Id
+	@NotNull
 	@Column(name = "account_number")
 	private String accountNumber;
 	
+	@NotNull
 	@Column(name = "account_balance")
 	private Double accountBalance;
 	
-	@MapsId
-	@OneToOne
+	@NotNull
 	@Column(name = "fk_bearer_document")
-	private Bearer bearer;
+	private String bearer;
 	
-	@MapsId
-	@OneToMany
+	@NotNull
 	@Column(name = "fk_agency_number")
-	private Agency agency;
+	private int agency;
 	
-	@OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
-	private Transaction Transaction;
 
-	public Account(String accountNumber, Double accountBalance, Bearer bearer, Agency agency, Transaction transaction) {
+	public String getAccountNumber() {
+		return accountNumber;
+	}
+
+	public void setAccountNumber(String accountNumber) {
 		this.accountNumber = accountNumber;
+	}
+
+	public Double getAccountBalance() {
+		return accountBalance;
+	}
+
+	public void setAccountBalance(Double accountBalance) {
 		this.accountBalance = accountBalance;
+	}
+
+	public String getBearer() {
+		return bearer;
+	}
+
+	public void setBearer(String bearer) {
 		this.bearer = bearer;
+	}
+
+	public int getAgency() {
+		return agency;
+	}
+
+	public void setAgency(int agency) {
 		this.agency = agency;
-		Transaction = transaction;
-	}
-	
-	public Account() {
-		//default constructor
-	}
-	
+	}	
 	
 }

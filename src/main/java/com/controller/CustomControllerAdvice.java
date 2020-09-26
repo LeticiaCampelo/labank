@@ -45,5 +45,4 @@ public class CustomControllerAdvice {
 		RequestReturn reqReturn = new RequestReturn(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(reqReturn);
 	}
-
 }

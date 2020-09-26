@@ -1,6 +1,7 @@
 package com.controller;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ public class BearerController {
 	
 	@Autowired
 	private BearerService service;
+	private Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 	
 	@GetMapping("/allBearers")
 	@ResponseBody
@@ -41,7 +43,7 @@ public class BearerController {
 	@GetMapping("/{id}")
 	@ResponseBody
 	Bearer getBearerByDocument(@PathVariable (value = "id", required = true) String document) throws NotFoundException, InvalidJsonException {
-		log.info("GET /api/v1/bearer/{id}");
+		log.info("GET /api/v1/bearer/");
 		validateQueryParams(document);
 		Bearer reqReturn = service.getBearerByDocument(document);
 		return reqReturn;
@@ -58,22 +60,24 @@ public class BearerController {
 	
 	@PutMapping("/{id}")
 	@ResponseBody
-	Bearer updateBearer(@PathVariable (value = "id", required = true) String document, @RequestBody Bearer bearer) throws NotFoundException, InvalidOperationException, InvalidJsonException  {
-		log.info("PUT /api/v1/bearer/{id}");
+	Bearer updateBearer(@PathVariable (value = "id", required = true) String document, @RequestBody Bearer bearer) throws NotFoundException, InvalidOperationException, InvalidJsonException {
+		log.info("PUT /api/v1/bearer/");
 		validateQueryParams(document);
+		validateRequestBody(bearer);
 		Bearer reqReturn = service.updateBearer(bearer, document);
 		return reqReturn;
 	}
 
 	private void validateQueryParams(String document) throws InvalidJsonException {
-		if(document == null) {
-			throw new InvalidJsonException("Missing arguments");	
+		if(document == null || !pattern.matcher(document).matches()) {
+			throw new InvalidJsonException("Missing or invalid arguments");	
 		}
 	}
 	
 	private void validateRequestBody(Bearer bearer) throws InvalidJsonException{
 		if(bearer.getBearerDocument() == null || bearer.getBearerName() == null || bearer.getBearerType() == null) {
-			throw new InvalidJsonException("Missing arguments");
+			throw new InvalidJsonException("Missing or invalid arguments");
 		}
 	}
+
 }

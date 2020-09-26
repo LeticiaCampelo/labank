@@ -1,6 +1,7 @@
 package com.controller;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import com.service.AccountService;
 @RequestMapping("/api/v1/account")
 public class AccountController {
 	
+	private Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 	final static Logger log = Logger.getLogger(AccountController.class);
 	
 	@Autowired
@@ -37,8 +39,9 @@ public class AccountController {
 	
 	@GetMapping("/{id}")
 	@ResponseBody
-	Account getAccountByNumber(@PathVariable (value = "id", required = true) String accountNumber) throws NotFoundException {
-		log.info("GET /api/v1/account/{id}");
+	Account getAccountByNumber(@PathVariable (value = "id", required = true) String accountNumber) throws NotFoundException, InvalidJsonException {
+		log.info("GET /api/v1/account/");
+		validateQueryParams(accountNumber);
 		Account reqReturn = service.getAccountByAccountNumber(accountNumber);
 		return reqReturn;
 	 }
@@ -52,9 +55,15 @@ public class AccountController {
 		return reqReturn;
 	}
 	
+	private void validateQueryParams(String accountNumber) throws InvalidJsonException {
+		if(accountNumber == null || !pattern.matcher(accountNumber).matches()) {
+			throw new InvalidJsonException("Missing or invalid arguments");	
+		}
+	}
+	
 	private void validateRequestBody(Account account) throws InvalidJsonException{
-		if(account.getAgency() == null) {
-			throw new InvalidJsonException("Missing arguments");
+		if(account.getAccountNumber() == null || account.getBearer() == null || account.getAgency() == null) {
+			throw new InvalidJsonException("Missing or invalid arguments");
 		}
 	}
 

@@ -14,6 +14,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.http.RequestEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -78,10 +79,10 @@ class LabankApplicationTests {
 	public void whenCreateBearersOK() {
 		Bearer responseCPF = restTemplate.postForObject(getRootUrl() + "/bearer/", createBearerTypeCPF(), Bearer.class);
 		System.out.println(responseCPF);
-		assertNotNull(responseCPF);
+		assertNotNull(responseCPF.getBearerDocument());
 		Bearer responseCNPJ = restTemplate.postForObject(getRootUrl() + "/bearer/", createBearerTypeCNPJ(), Bearer.class);
 		System.out.println(responseCNPJ);
-		assertNotNull(responseCNPJ);
+		assertNotNull(responseCNPJ.getBearerDocument());
 	}
 	
 	@Test
@@ -90,19 +91,12 @@ class LabankApplicationTests {
 		assertTrue(bearer.getBearerDocument() == null);
 		
 	}
+
 	
 	
 	private Bearer createBearerTypeERROR() {
 		Bearer testBearer = new Bearer();
 		testBearer.setBearerName("TesteCPF");
-		testBearer.setBearerType(1);
-		return testBearer;
-	}
-	
-	private Bearer updateBearer() {
-		Bearer testBearer = new Bearer();
-		testBearer.setBearerName("TesteCPF");
-		testBearer.setBearerDocument("1234567910");
 		testBearer.setBearerType(1);
 		return testBearer;
 	}

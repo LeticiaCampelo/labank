@@ -23,7 +23,8 @@ public class GenericController {
 	@ResponseBody
 	ResponseEntity<String> getAllRotes() {
 		log.info("GET /");
-		String routes = "Bearer routes:\n"
+		String routes = "Heroku url: https://labank.herokuapp.com/swagger-ui.html#"
+						+ "\n\nBearer routes:\n"
 						+ "GET and PUT https://labank.herokuapp.com/api/v1/bearer/{id} valid ids: 39744197056 or 69995668000112"
 						+ "\nPOST https://labank.herokuapp.com/api/v1/bearer\nValid Json: \n {\r\n" + 
 																								"    \"bearerDocument\": \"69995668000112\",\r\n" + 

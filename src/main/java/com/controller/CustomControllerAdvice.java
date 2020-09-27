@@ -19,8 +19,16 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.model.RequestReturn;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 @Configuration
 @ControllerAdvice
+@Getter
+@Builder
+@NoArgsConstructor
 public class CustomControllerAdvice {
 	final static Logger log = Logger.getLogger(CustomControllerAdvice.class);
 	

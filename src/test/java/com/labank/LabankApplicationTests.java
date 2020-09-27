@@ -46,14 +46,14 @@ class LabankApplicationTests {
 	private BearerController bearerController;
 	@Autowired
 	private TransactionController transactionController;
-	
+
 	@LocalServerPort
 	private int port;
 
 	@Autowired
 	private TestRestTemplate restTemplate;
-	
-	
+
+
 	private String getRootUrl() {
 		return "http://localhost:" + port + "/api/v1";
 	}
@@ -63,9 +63,16 @@ class LabankApplicationTests {
 		assertNotNull(accountController);
 		assertNotNull(bearerController);
 		assertNotNull(transactionController);
-		
+
 	}
-	
+
+	@Test
+	public void whenAllBearersOK() throws JSONException {
+		ResponseEntity<String> response = restTemplate.getForEntity(getRootUrl() + "/bearer/allBearers", String.class);
+		assertTrue(response.getStatusCode().is2xxSuccessful());
+
+	}
+
 	@Test
 	public void whenBearerExistsOK() throws JSONException {
 		ResponseEntity<String> response = restTemplate.getForEntity(getRootUrl() + "/bearer/39744197056", String.class);
@@ -73,9 +80,9 @@ class LabankApplicationTests {
 		String JsonRequest = response.getBody().toString();
 		JSONObject jsonObject = new JSONObject(JsonRequest);
 		assertNotNull(jsonObject.get("bearerName"));
-		
+
 	}
-	
+
 	@Test 
 	public void whenBearerExistsERROR() throws JSONException {
 		ResponseEntity<String> response = restTemplate.getForEntity(getRootUrl() + "/bearer/3974419756", String.class);
@@ -84,8 +91,8 @@ class LabankApplicationTests {
 		JSONObject jsonObject = new JSONObject(JsonRequest);
 		assertTrue(jsonObject.get("returnCode").equals("NOT_FOUND"));
 	}
-		
-	
+
+
 	@Test
 	public void whenCreateBearersOKCPF() throws JSONException {
 		ResponseEntity<String> cpfResponse = restTemplate.postForEntity(getRootUrl() + "/bearer/", createBearerTypeCPFOK(), String.class);
@@ -94,7 +101,7 @@ class LabankApplicationTests {
 		JSONObject jsonObject = new JSONObject(JsonRequest);
 		assertNotNull(jsonObject.get("bearerDocument"));
 	}
-	
+
 	@Test
 	public void whenCreateBearersOKCNPJ() throws JSONException {
 		ResponseEntity<String> cnpjResponse = restTemplate.postForEntity(getRootUrl() + "/bearer/", createBearerTypeCNPJOK(), String.class);
@@ -103,7 +110,7 @@ class LabankApplicationTests {
 		JSONObject jsonObject = new JSONObject(JsonRequest);
 		assertNotNull(jsonObject.get("bearerDocument"));
 	}
-	
+
 	@Test
 	public void whenCreateBearersERROR() throws JSONException{
 		ResponseEntity<String> response = restTemplate.postForEntity(getRootUrl() + "/bearer/", createBearerERROR(), String.class);
@@ -111,9 +118,9 @@ class LabankApplicationTests {
 		String JsonRequest = response.getBody().toString();
 		JSONObject jsonObject = new JSONObject(JsonRequest);
 		assertTrue(jsonObject.get("returnCode").equals("BAD_REQUEST"));
-		
+
 	}
-	
+
 	@Test
 	public void whenUpdateBearersOK() throws JSONException {
 		HttpEntity<Bearer> request = new HttpEntity<Bearer>(updateBearerOK());
@@ -123,7 +130,7 @@ class LabankApplicationTests {
 		JSONObject jsonObject = new JSONObject(JsonRequest);
 		assertNotNull(jsonObject.get("bearerDocument"));
 	}
-	
+
 	@Test
 	public void whenUpdateBearersERROR() throws JSONException{
 		HttpEntity<Bearer> request = new HttpEntity<Bearer>(updateBearerERROR());
@@ -132,9 +139,16 @@ class LabankApplicationTests {
 		String JsonRequest = response.getBody().toString();
 		JSONObject jsonObject = new JSONObject(JsonRequest);
 		assertTrue(jsonObject.get("returnCode").equals("BAD_REQUEST"));
-		
+
 	}
-	
+
+	@Test
+	public void whenAllAccountsOK() throws JSONException {
+		ResponseEntity<String> response = restTemplate.getForEntity(getRootUrl() + "/account/allAccounts", String.class);
+		assertTrue(response.getStatusCode().is2xxSuccessful());
+
+	}
+
 	@Test
 	public void whenAccountExistsOK() throws JSONException {
 		ResponseEntity<String> response = restTemplate.getForEntity(getRootUrl() + "/account/02451027", String.class);
@@ -142,9 +156,9 @@ class LabankApplicationTests {
 		String JsonRequest = response.getBody().toString();
 		JSONObject jsonObject = new JSONObject(JsonRequest);
 		assertNotNull(jsonObject.get("accountNumber"));
-		
+
 	}
-	
+
 	@Test 
 	public void whenAccountExistsERROR() throws JSONException {
 		ResponseEntity<String> response = restTemplate.getForEntity(getRootUrl() + "/account/0245027", String.class);
@@ -153,7 +167,7 @@ class LabankApplicationTests {
 		JSONObject jsonObject = new JSONObject(JsonRequest);
 		assertTrue(jsonObject.get("returnCode").equals("NOT_FOUND"));
 	}
-	
+
 	@Test
 	public void whenCreateAccountOK() throws JSONException {
 		ResponseEntity<String> response = restTemplate.postForEntity(getRootUrl() + "/account/", createAccountOK(), String.class);
@@ -162,7 +176,7 @@ class LabankApplicationTests {
 		JSONObject jsonObject = new JSONObject(JsonRequest);
 		assertNotNull(jsonObject.get("accountNumber"));
 	}
-	
+
 	@Test
 	public void whenCreateAccountERROR() throws JSONException{
 		ResponseEntity<String> response = restTemplate.postForEntity(getRootUrl() + "/account/", createAccountERROR(), String.class);
@@ -171,44 +185,59 @@ class LabankApplicationTests {
 		JSONObject jsonObject = new JSONObject(JsonRequest);
 		assertTrue(jsonObject.get("returnCode").equals("BAD_REQUEST"));
 	}
-	
+
 	@Test
-	public void whenTransactionalAccountExistsOK() {
+	public void whenTransactionalAccountExistsOK() throws JSONException {
 		ResponseEntity<String> transactions = restTemplate.getForEntity(getRootUrl() + "/transaction/02451027", String.class);
-		assertTrue(transactions.getStatusCode().is2xxSuccessful());		
+		assertTrue(transactions.getStatusCode().is2xxSuccessful());	
 	}
-	
+
 	@Test 
-	public void whenTransactionalAccountExistsERROR() {
+	public void whenTransactionalAccountExistsERROR() throws JSONException {
 		ResponseEntity<String> transactions = restTemplate.getForEntity(getRootUrl() + "/transaction/0245027", String.class);
-		assertTrue(transactions.getStatusCode().is4xxClientError());	
+		assertTrue(transactions.getStatusCode().is4xxClientError());
+		String JsonRequest = transactions.getBody().toString();
+		JSONObject jsonObject = new JSONObject(JsonRequest);
+		assertTrue(jsonObject.get("returnCode").equals("NOT_FOUND"));
 	}
-	
+
 	@Test 
-	public void whenDepositOK() {
+	public void whenDepositOK() throws JSONException {
 		ResponseEntity<String> transactions = restTemplate.postForEntity(getRootUrl() + "/transaction/deposit", transactionsOK(),String.class);
-		assertTrue(transactions.getStatusCode().is2xxSuccessful());	
+		assertTrue(transactions.getStatusCode().is2xxSuccessful());
+		String JsonRequest = transactions.getBody().toString();
+		JSONObject jsonObject = new JSONObject(JsonRequest);
+		assertNotNull(jsonObject.get("id"));
 	}
-	
+
 	@Test 
-	public void whenWithDrawOK() {
+	public void whenWithDrawOK() throws JSONException {
 		ResponseEntity<String> transactions = restTemplate.postForEntity(getRootUrl() + "/transaction/withdraw", transactionsOK(),String.class);
-		assertTrue(transactions.getStatusCode().is2xxSuccessful());	
+		assertTrue(transactions.getStatusCode().is2xxSuccessful());
+		String JsonRequest = transactions.getBody().toString();
+		JSONObject jsonObject = new JSONObject(JsonRequest);
+		assertNotNull(jsonObject.get("id"));
 	}
-	
+
 	@Test 
-	public void whenDepositERROR() {
+	public void whenDepositERROR() throws JSONException {
 		ResponseEntity<String> transactions = restTemplate.postForEntity(getRootUrl() + "/transaction/deposit", transactionsERROR(),String.class);
-		assertTrue(transactions.getStatusCode().is4xxClientError());	
+		assertTrue(transactions.getStatusCode().is4xxClientError());
+		String JsonRequest = transactions.getBody().toString();
+		JSONObject jsonObject = new JSONObject(JsonRequest);
+		assertTrue(jsonObject.get("returnCode").equals("BAD_REQUEST"));
 	}
-	
+
 	@Test 
-	public void whenWithDrawERROR() {
+	public void whenWithDrawERROR() throws JSONException {
 		ResponseEntity<String> transactions = restTemplate.postForEntity(getRootUrl() + "/transaction/withdraw", transactionsERROR(),String.class);
-		assertTrue(transactions.getStatusCode().is4xxClientError());	
+		assertTrue(transactions.getStatusCode().is4xxClientError());
+		String JsonRequest = transactions.getBody().toString();
+		JSONObject jsonObject = new JSONObject(JsonRequest);
+		assertTrue(jsonObject.get("returnCode").equals("BAD_REQUEST"));
 	}
-	
-	
+
+
 	private Bearer updateBearerERROR() {
 		Bearer testBearer = new Bearer();
 		testBearer.setBearerName("TesteUpdateERROR");
@@ -216,7 +245,7 @@ class LabankApplicationTests {
 		testBearer.setBearerType(1);
 		return testBearer;
 	}
-	
+
 	private Bearer updateBearerOK() {
 		Bearer testBearer = new Bearer();
 		testBearer.setBearerName("TesteUpdateOK");
@@ -224,14 +253,14 @@ class LabankApplicationTests {
 		testBearer.setBearerType(1);
 		return testBearer;
 	}
-	
+
 	private Bearer createBearerERROR() {
 		Bearer testBearer = new Bearer();
 		testBearer.setBearerName("TesteERROR");
 		testBearer.setBearerType(1);
 		return testBearer;
 	}
-	
+
 	private Bearer createBearerTypeCPFOK() {
 		Bearer testBearer = new Bearer();
 		testBearer.setBearerName("TesteCPF");
@@ -239,7 +268,7 @@ class LabankApplicationTests {
 		testBearer.setBearerType(1);
 		return testBearer;
 	}
-	
+
 	private Bearer createBearerTypeCNPJOK() {
 		Bearer testBearer = new Bearer();
 		testBearer.setBearerName("TesteCNPJ");
@@ -247,14 +276,14 @@ class LabankApplicationTests {
 		testBearer.setBearerType(0);
 		return testBearer;
 	}
-	
+
 	private Account createAccountERROR() {
 		Account testAccount = new Account();
 		testAccount.setAccountNumber("12345");
 		testAccount.setAgency(1);
 		return testAccount;
 	}
-	
+
 	private Account createAccountOK() {
 		Account testAccount = new Account();
 		testAccount.setAccountNumber("12345");
@@ -262,19 +291,19 @@ class LabankApplicationTests {
 		testAccount.setAgency(1);
 		return testAccount;
 	}
-	
+
 	private TransactionDTO transactionsOK() {
 		TransactionDTO transaction = new TransactionDTO();
 		transaction.setAccountNumber("02451027");
 		transaction.setTransactionAmount(2.0);
 		return transaction;
 	}
-		
+
 	private TransactionDTO transactionsERROR() {
 		TransactionDTO transaction = new TransactionDTO();
 		transaction.setAccountNumber("02451027");
 		return transaction;
-		
+
 	}
 
 

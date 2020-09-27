@@ -1,17 +1,17 @@
 package com.service;
 
-import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.exceptions.InvalidOperationException;
 import com.exceptions.NotFoundException;
 import com.model.Account;
 import com.model.Transaction;
+import com.model.TransactionDTO;
 import com.repository.AccountRepository;
 import com.repository.TransactionRepository;
 
@@ -39,13 +39,14 @@ public class TransactionServiceImpl implements TransactionService{
 	}
 
 	@Override
-	public Transaction withdraw(Transaction transaction) throws InvalidOperationException, NotFoundException {
+	public Transaction withdraw(TransactionDTO transaction) throws InvalidOperationException, NotFoundException {
 		Account account = accountRepository.findById(transaction.getAccountNumber()).orElseThrow(() -> new NotFoundException("Account doesen't exist.")); 
 		if(transaction.getTransactionAmount() > 0) {
 			if(account.getAccountBalance() <= transaction.getTransactionAmount()) {
 				throw new InvalidOperationException("This account doesn't have enough cash");
 			}else {
-				return doTransaction(transaction, account, "D");
+				Transaction transactionEntity = parseTransactionToEntity(transaction);
+				return doTransaction(transactionEntity, account, "D");
 			}
 		}else{
 			throw new InvalidOperationException("Invalid transaction amount.");
@@ -53,14 +54,22 @@ public class TransactionServiceImpl implements TransactionService{
 	}
 
 	@Override
-	public Transaction deposit(Transaction transaction) throws InvalidOperationException, NotFoundException  {
+	public Transaction deposit(TransactionDTO transaction) throws InvalidOperationException, NotFoundException  {
 		Account account = accountRepository.findById(transaction.getAccountNumber()).orElseThrow(() -> new NotFoundException("Account doesen't exist.")); 
 		if(transaction.getTransactionAmount() > 0) {
-			return doTransaction(transaction, account, "C");
+			Transaction transactionEntity = parseTransactionToEntity(transaction);
+			return doTransaction(transactionEntity, account, "C");
 		}
 		else {
 			throw new InvalidOperationException("Invalid transaction amount.");
 		}
+	}
+
+	private Transaction parseTransactionToEntity(TransactionDTO transaction) {
+		Transaction transactionEntity = new Transaction();
+		transactionEntity.setAccountNumber(transaction.getAccountNumber());
+		transactionEntity.setTransactionAmount(transaction.getTransactionAmount());
+		return transactionEntity;
 	}
 
 
@@ -72,7 +81,7 @@ public class TransactionServiceImpl implements TransactionService{
 			transaction.setTransactionAmount(-transaction.getTransactionAmount());
 		}
 		accountRepository.save(account);
-		transaction.setTransactionDate(Calendar.getInstance().getTime());
+		transaction.setTransactionDate(new Date());
 		transactionRepository.save(transaction);
 		log.info(String.format("%d - %s transaction succeed: %s", SUCCESS, type, transaction));
 		return transaction;

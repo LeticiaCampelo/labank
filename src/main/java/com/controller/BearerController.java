@@ -18,11 +18,14 @@ import com.exceptions.AlreadyExistsException;
 import com.exceptions.InvalidJsonException;
 import com.exceptions.InvalidOperationException;
 import com.exceptions.NotFoundException;
-import com.model.Account;
 import com.model.Bearer;
 import com.service.BearerService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
+@Api(value = "Bearer")
 @RequestMapping("/api/v1/bearer")
 public class BearerController {
 
@@ -34,6 +37,7 @@ public class BearerController {
 
 
 	@GetMapping("/allBearers")
+	@ApiOperation(value = "Get all default bearers")
 	@ResponseBody
 	List<Bearer> getAllBearers() throws NotFoundException {
 		log.info("GET /api/v1/bearer/allBearers");
@@ -42,6 +46,7 @@ public class BearerController {
 	}
 
 	@GetMapping("/{id}")
+	@ApiOperation(value = "Get a bearer")
 	@ResponseBody
 	Bearer getBearerByDocument(@PathVariable (value = "id", required = true) String document) throws NotFoundException, InvalidJsonException {
 		log.info("GET /api/v1/bearer/");
@@ -52,6 +57,7 @@ public class BearerController {
 
 	@PostMapping("/")
 	@ResponseBody
+	@ApiOperation(value = "Create a bearer")
 	Bearer createBearer(@RequestBody Bearer newBearer) throws InvalidOperationException, AlreadyExistsException, InvalidJsonException {
 		log.info("POST /api/v1/bearer/");
 		validateRequestBody(newBearer);
@@ -61,6 +67,7 @@ public class BearerController {
 
 	@PutMapping("/{id}")
 	@ResponseBody
+	@ApiOperation(value = "Update a bearer")
 	Bearer updateBearer(@PathVariable (value = "id", required = true) String document, @RequestBody Bearer bearer) throws NotFoundException, InvalidOperationException, InvalidJsonException {
 		log.info("PUT /api/v1/bearer/");
 		validateQueryParams(document);

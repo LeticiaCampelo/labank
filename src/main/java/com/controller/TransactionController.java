@@ -17,9 +17,14 @@ import com.exceptions.InvalidJsonException;
 import com.exceptions.InvalidOperationException;
 import com.exceptions.NotFoundException;
 import com.model.Transaction;
+import com.model.TransactionDTO;
 import com.service.TransactionService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
+@Api(value = "Transaction")
 @RequestMapping("/api/v1/transaction")
 public class TransactionController {
 
@@ -30,6 +35,7 @@ public class TransactionController {
 	private TransactionService service;
 
 	@GetMapping("/{id}")
+	@ApiOperation(value = "Get an account extract")
 	@ResponseBody
 	List<Transaction> getExtract(@PathVariable (value = "id", required = true) String accountNumber) throws NotFoundException, InvalidJsonException {
 		log.info("GET /api/v1/transaction/");
@@ -40,7 +46,8 @@ public class TransactionController {
 
 	@ResponseBody
 	@PostMapping("/deposit")
-	Transaction deposit(@RequestBody Transaction transaction) throws InvalidOperationException, NotFoundException, InvalidJsonException {
+	@ApiOperation(value = "Make a deposit")
+	Transaction deposit(@RequestBody TransactionDTO transaction) throws InvalidOperationException, NotFoundException, InvalidJsonException {
 		log.info("POST /api/v1/transaction/deposit " + transaction);
 		validateRequestBody(transaction);
 		Transaction reqReturn = service.deposit(transaction);
@@ -48,8 +55,9 @@ public class TransactionController {
 	}	
 
 	@ResponseBody
+	@ApiOperation(value = "Make a withdraw")
 	@PostMapping("/withdraw")
-	Transaction withdraw(@RequestBody Transaction transaction) throws InvalidOperationException, NotFoundException, InvalidJsonException {
+	Transaction withdraw(@RequestBody TransactionDTO transaction) throws InvalidOperationException, NotFoundException, InvalidJsonException {
 		log.info("POST /api/v1/transaction/withdraw " + transaction);
 		validateRequestBody(transaction);
 		Transaction reqReturn = service.withdraw(transaction);
@@ -62,12 +70,9 @@ public class TransactionController {
 		}
 	}
 
-	private void validateRequestBody(Transaction transaction) throws InvalidJsonException{
+	private void validateRequestBody(TransactionDTO transaction) throws InvalidJsonException{
 		if((transaction.getTransactionAmount() == null || transaction.getAccountNumber() == null) || transaction.getAccountNumber().equals("")) {
 			throw new InvalidJsonException("Missing or invalid arguments");
-		}
-		else if(transaction.getTransactionDate() != null) {
-			throw new InvalidJsonException("Just instants transactions for now. Take out the Transaction date.");
 		}
 	}
 

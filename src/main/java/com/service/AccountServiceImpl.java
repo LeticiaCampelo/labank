@@ -10,6 +10,7 @@ import com.exceptions.AlreadyExistsException;
 import com.exceptions.InvalidJsonException;
 import com.exceptions.NotFoundException;
 import com.model.Account;
+import com.model.AccountDTO;
 import com.repository.AccountRepository;
 import com.repository.BearerRepository;
 
@@ -45,13 +46,22 @@ public class AccountServiceImpl implements AccountService{
 	}
 
 	@Override
-	public Account createAccount(Account account)throws NotFoundException, AlreadyExistsException, InvalidJsonException  {				
-		validateAccountParams(account);
-		if(account.getAccountBalance() == null)
-			account.setAccountBalance(0.00);
-		accountRepository.save(account);
+	public Account createAccount(AccountDTO account) throws NotFoundException, AlreadyExistsException, InvalidJsonException  {
+		Account accountEntity = parseAccountToEntity(account);
+		if(accountEntity.getAccountBalance() == null)
+			accountEntity.setAccountBalance(0.00);
+		accountRepository.save(accountEntity);
 		log.info(String.format("%d - account created: %s", SUCCESS, account));
-		return account;
+		return accountEntity;
+	}
+
+	private Account parseAccountToEntity(AccountDTO account) throws InvalidJsonException, AlreadyExistsException {
+		Account accountEntity = new Account();
+		accountEntity.setAccountNumber(account.getAccountNumber());
+		accountEntity.setAgency(account.getAgency());
+		accountEntity.setBearer(account.getBearer());
+		validateAccountParams(accountEntity);
+		return accountEntity;
 	}
 
 	private void validateAccountParams(Account account) throws InvalidJsonException, NotFoundException, AlreadyExistsException{

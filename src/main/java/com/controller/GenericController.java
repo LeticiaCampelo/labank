@@ -7,16 +7,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/")
+@Api(value = "Routes")
 public class GenericController {
 
 	private static final int SUCCESS = 200;
 	final static Logger log = Logger.getLogger(GenericController.class);
 
 	@GetMapping("/")
+	@ApiOperation(value = "Show all the routes")
 	@ResponseBody
-	ResponseEntity<String> getAllBearers() {
+	ResponseEntity<String> getAllRotes() {
 		log.info("GET /");
 		String routes = "Bearer routes:\n"
 						+ "GET and PUT https://labank.herokuapp.com/api/v1/bearer/{id} valid ids: 39744197056 or 69995668000112"

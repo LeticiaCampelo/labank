@@ -17,9 +17,14 @@ import com.exceptions.AlreadyExistsException;
 import com.exceptions.InvalidJsonException;
 import com.exceptions.NotFoundException;
 import com.model.Account;
+import com.model.AccountDTO;
 import com.service.AccountService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
+@Api(value = "Account")
 @RequestMapping("/api/v1/account")
 public class AccountController {
 
@@ -30,6 +35,7 @@ public class AccountController {
 	private AccountService service;
 
 	@GetMapping("/allAccounts")
+	@ApiOperation(value = "Get all accounts")
 	@ResponseBody
 	List<Account> getAllAccounts() throws NotFoundException {
 		log.info("GET /api/v1/account/allAccounts");
@@ -38,6 +44,7 @@ public class AccountController {
 	}
 
 	@GetMapping("/{id}")
+	@ApiOperation(value = "Get an account")
 	@ResponseBody
 	Account getAccountByNumber(@PathVariable (value = "id", required = true) String accountNumber) throws NotFoundException, InvalidJsonException {
 		log.info("GET /api/v1/account/");
@@ -47,8 +54,9 @@ public class AccountController {
 	}
 
 	@PostMapping("/")
+	@ApiOperation(value = "Create an account")
 	@ResponseBody
-	Account createAccount(@RequestBody Account account) throws NotFoundException, AlreadyExistsException, InvalidJsonException {
+	Account createAccount(@RequestBody AccountDTO account) throws NotFoundException, AlreadyExistsException, InvalidJsonException {
 		log.info("POST /api/v1/account/");
 		validateRequestBody(account);
 		Account reqReturn = service.createAccount(account);
@@ -61,7 +69,7 @@ public class AccountController {
 		}
 	}
 
-	private void validateRequestBody(Account account) throws InvalidJsonException{
+	private void validateRequestBody(AccountDTO account) throws InvalidJsonException{
 		if(account.getAccountNumber() == null || account.getBearer() == null || account.getAgency() == null) {
 			throw new InvalidJsonException("Missing or invalid arguments");
 		}

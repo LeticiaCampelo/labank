@@ -1,6 +1,8 @@
 package com.labank;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +30,6 @@ import com.model.Bearer;
 @EntityScan("com")
 @EnableAutoConfiguration
 class LabankApplicationTests {
-
 	@Autowired
 	private AccountController accountController;
 	@Autowired
@@ -54,7 +55,6 @@ class LabankApplicationTests {
 		assertNotNull(transactionController);
 		
 	}
-
 	
 	@Test
 	public void whenBearerExistsOK() {
@@ -63,10 +63,12 @@ class LabankApplicationTests {
 		
 	}
 	
-	@org.junit.Test(expected = NotFoundException.class) 
+	@Test 
 	public void whenBearerExistsERROR() {
-		restTemplate.getForObject(getRootUrl() + "/bearer/3974419756", Bearer.class);
+		NotFoundException exception = assertThrows(NotFoundException.class, () -> restTemplate.getForObject(getRootUrl() + "/bearer/3974419756", Bearer.class));
+		assertTrue((exception.getMessage().contains("not found")));
 	}
+		
 	
 	@Test
 	public void whenCreateBearersOK() {
@@ -74,14 +76,12 @@ class LabankApplicationTests {
 		assertNotNull(responseCPF);
 		Bearer responseCNPJ = restTemplate.postForObject(getRootUrl() + "/bearer/", createBearerTypeCNPJ(), Bearer.class);
 		assertNotNull(responseCNPJ);
-		Bearer response = restTemplate.getForObject(getRootUrl() + "/bearer/12345678910", Bearer.class);
-		assertNotNull(response);
 	}
 	
 	@org.junit.Test(expected = InvalidJsonException.class) 
 	public void whenCreateBearersERROR(){
-		createBearerTypeERROR();
-		restTemplate.postForObject(getRootUrl() + "/bearer/", createBearerTypeCPF(), Bearer.class);
+		InvalidJsonException exception = assertThrows(InvalidJsonException.class, () -> restTemplate.postForObject(getRootUrl() + "/bearer/", createBearerTypeERROR(), Bearer.class));
+		assertTrue((exception.getMessage().contains("invalid")));
 		
 	}
 	

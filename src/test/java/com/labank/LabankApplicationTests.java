@@ -3,6 +3,8 @@ package com.labank;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +16,9 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.http.RequestEntity;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -22,7 +26,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.controller.AccountController;
 import com.controller.BearerController;
 import com.controller.TransactionController;
+import com.model.Account;
 import com.model.Bearer;
+import com.model.TransactionDTO;
 
 @SpringBootTest(classes = {AccountController.class, BearerController.class, TransactionController.class} , webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @RunWith(SpringRunner.class)
@@ -61,47 +67,172 @@ class LabankApplicationTests {
 	}
 	
 	@Test
-	public void whenBearerExistsOK() {
-		Bearer response = restTemplate.getForObject(getRootUrl() + "/bearer/39744197056", Bearer.class);
-		System.out.println(response);
-		assertNotNull(response);
+	public void whenBearerExistsOK() throws JSONException {
+		ResponseEntity<String> response = restTemplate.getForEntity(getRootUrl() + "/bearer/39744197056", String.class);
+		assertTrue(response.getStatusCode().is2xxSuccessful());
+		String JsonRequest = response.getBody().toString();
+		JSONObject jsonObject = new JSONObject(JsonRequest);
+		assertNotNull(jsonObject.get("bearerName"));
 		
 	}
 	
 	@Test 
-	public void whenBearerExistsERROR() {
-		Bearer bearer = restTemplate.getForObject(getRootUrl() + "/bearer/3974419756", Bearer.class);
-		assertTrue(bearer.getBearerDocument() == null);
+	public void whenBearerExistsERROR() throws JSONException {
+		ResponseEntity<String> response = restTemplate.getForEntity(getRootUrl() + "/bearer/3974419756", String.class);
+		assertTrue(response.getStatusCode().is4xxClientError());
+		String JsonRequest = response.getBody().toString();
+		JSONObject jsonObject = new JSONObject(JsonRequest);
+		assertTrue(jsonObject.get("returnCode").equals("NOT_FOUND"));
 	}
 		
 	
 	@Test
-	public void whenCreateBearersOK() {
-		Bearer responseCPF = restTemplate.postForObject(getRootUrl() + "/bearer/", createBearerTypeCPF(), Bearer.class);
-		System.out.println(responseCPF);
-		assertNotNull(responseCPF.getBearerDocument());
-		Bearer responseCNPJ = restTemplate.postForObject(getRootUrl() + "/bearer/", createBearerTypeCNPJ(), Bearer.class);
-		System.out.println(responseCNPJ);
-		assertNotNull(responseCNPJ.getBearerDocument());
+	public void whenCreateBearersOKCPF() throws JSONException {
+		ResponseEntity<String> cpfResponse = restTemplate.postForEntity(getRootUrl() + "/bearer/", createBearerTypeCPFOK(), String.class);
+		assertTrue(cpfResponse.getStatusCode().is2xxSuccessful());
+		String JsonRequest = cpfResponse.getBody().toString();
+		JSONObject jsonObject = new JSONObject(JsonRequest);
+		assertNotNull(jsonObject.get("bearerDocument"));
 	}
 	
 	@Test
-	public void whenCreateBearersERROR(){
-		Bearer bearer = restTemplate.postForObject(getRootUrl() + "/bearer/", createBearerTypeERROR(), Bearer.class);
-		assertTrue(bearer.getBearerDocument() == null);
+	public void whenCreateBearersOKCNPJ() throws JSONException {
+		ResponseEntity<String> cnpjResponse = restTemplate.postForEntity(getRootUrl() + "/bearer/", createBearerTypeCNPJOK(), String.class);
+		assertTrue(cnpjResponse.getStatusCode().is2xxSuccessful());
+		String JsonRequest = cnpjResponse.getBody().toString();
+		JSONObject jsonObject = new JSONObject(JsonRequest);
+		assertNotNull(jsonObject.get("bearerDocument"));
+	}
+	
+	@Test
+	public void whenCreateBearersERROR() throws JSONException{
+		ResponseEntity<String> response = restTemplate.postForEntity(getRootUrl() + "/bearer/", createBearerERROR(), String.class);
+		assertTrue(response.getStatusCode().is4xxClientError());
+		String JsonRequest = response.getBody().toString();
+		JSONObject jsonObject = new JSONObject(JsonRequest);
+		assertTrue(jsonObject.get("returnCode").equals("BAD_REQUEST"));
 		
 	}
-
+	
+	@Test
+	public void whenUpdateBearersOK() throws JSONException {
+		HttpEntity<Bearer> request = new HttpEntity<Bearer>(updateBearerOK());
+		ResponseEntity<String> response = restTemplate.exchange(getRootUrl() + "/bearer/39744197056", HttpMethod.PUT, request, String.class);
+		assertTrue(response.getStatusCode().is2xxSuccessful());
+		String JsonRequest = response.getBody().toString();
+		JSONObject jsonObject = new JSONObject(JsonRequest);
+		assertNotNull(jsonObject.get("bearerDocument"));
+	}
+	
+	@Test
+	public void whenUpdateBearersERROR() throws JSONException{
+		HttpEntity<Bearer> request = new HttpEntity<Bearer>(updateBearerERROR());
+		ResponseEntity<String> response = restTemplate.exchange(getRootUrl() + "/bearer/12345678910", HttpMethod.PUT, request, String.class);
+		assertTrue(response.getStatusCode().is4xxClientError());
+		String JsonRequest = response.getBody().toString();
+		JSONObject jsonObject = new JSONObject(JsonRequest);
+		assertTrue(jsonObject.get("returnCode").equals("BAD_REQUEST"));
+		
+	}
+	
+	@Test
+	public void whenAccountExistsOK() throws JSONException {
+		ResponseEntity<String> response = restTemplate.getForEntity(getRootUrl() + "/account/02451027", String.class);
+		assertTrue(response.getStatusCode().is2xxSuccessful());
+		String JsonRequest = response.getBody().toString();
+		JSONObject jsonObject = new JSONObject(JsonRequest);
+		assertNotNull(jsonObject.get("accountNumber"));
+		
+	}
+	
+	@Test 
+	public void whenAccountExistsERROR() throws JSONException {
+		ResponseEntity<String> response = restTemplate.getForEntity(getRootUrl() + "/account/0245027", String.class);
+		assertTrue(response.getStatusCode().is4xxClientError());
+		String JsonRequest = response.getBody().toString();
+		JSONObject jsonObject = new JSONObject(JsonRequest);
+		assertTrue(jsonObject.get("returnCode").equals("NOT_FOUND"));
+	}
+	
+	@Test
+	public void whenCreateAccountOK() throws JSONException {
+		ResponseEntity<String> response = restTemplate.postForEntity(getRootUrl() + "/account/", createAccountOK(), String.class);
+		assertTrue(response.getStatusCode().is2xxSuccessful());
+		String JsonRequest = response.getBody().toString();
+		JSONObject jsonObject = new JSONObject(JsonRequest);
+		assertNotNull(jsonObject.get("accountNumber"));
+	}
+	
+	@Test
+	public void whenCreateAccountERROR() throws JSONException{
+		ResponseEntity<String> response = restTemplate.postForEntity(getRootUrl() + "/account/", createAccountERROR(), String.class);
+		assertTrue(response.getStatusCode().is4xxClientError());
+		String JsonRequest = response.getBody().toString();
+		JSONObject jsonObject = new JSONObject(JsonRequest);
+		assertTrue(jsonObject.get("returnCode").equals("BAD_REQUEST"));
+	}
+	
+	@Test
+	public void whenTransactionalAccountExistsOK() {
+		ResponseEntity<String> transactions = restTemplate.getForEntity(getRootUrl() + "/transaction/02451027", String.class);
+		assertTrue(transactions.getStatusCode().is2xxSuccessful());		
+	}
+	
+	@Test 
+	public void whenTransactionalAccountExistsERROR() {
+		ResponseEntity<String> transactions = restTemplate.getForEntity(getRootUrl() + "/transaction/0245027", String.class);
+		assertTrue(transactions.getStatusCode().is4xxClientError());	
+	}
+	
+	@Test 
+	public void whenDepositOK() {
+		ResponseEntity<String> transactions = restTemplate.postForEntity(getRootUrl() + "/transaction/deposit", transactionsOK(),String.class);
+		assertTrue(transactions.getStatusCode().is2xxSuccessful());	
+	}
+	
+	@Test 
+	public void whenWithDrawOK() {
+		ResponseEntity<String> transactions = restTemplate.postForEntity(getRootUrl() + "/transaction/withdraw", transactionsOK(),String.class);
+		assertTrue(transactions.getStatusCode().is2xxSuccessful());	
+	}
+	
+	@Test 
+	public void whenDepositERROR() {
+		ResponseEntity<String> transactions = restTemplate.postForEntity(getRootUrl() + "/transaction/deposit", transactionsERROR(),String.class);
+		assertTrue(transactions.getStatusCode().is4xxClientError());	
+	}
+	
+	@Test 
+	public void whenWithDrawERROR() {
+		ResponseEntity<String> transactions = restTemplate.postForEntity(getRootUrl() + "/transaction/withdraw", transactionsERROR(),String.class);
+		assertTrue(transactions.getStatusCode().is4xxClientError());	
+	}
 	
 	
-	private Bearer createBearerTypeERROR() {
+	private Bearer updateBearerERROR() {
 		Bearer testBearer = new Bearer();
-		testBearer.setBearerName("TesteCPF");
+		testBearer.setBearerName("TesteUpdateERROR");
+		testBearer.setBearerDocument("12345478910");
 		testBearer.setBearerType(1);
 		return testBearer;
 	}
 	
-	private Bearer createBearerTypeCPF() {
+	private Bearer updateBearerOK() {
+		Bearer testBearer = new Bearer();
+		testBearer.setBearerName("TesteUpdateOK");
+		testBearer.setBearerDocument("39744197056");
+		testBearer.setBearerType(1);
+		return testBearer;
+	}
+	
+	private Bearer createBearerERROR() {
+		Bearer testBearer = new Bearer();
+		testBearer.setBearerName("TesteERROR");
+		testBearer.setBearerType(1);
+		return testBearer;
+	}
+	
+	private Bearer createBearerTypeCPFOK() {
 		Bearer testBearer = new Bearer();
 		testBearer.setBearerName("TesteCPF");
 		testBearer.setBearerDocument("12345678910");
@@ -109,12 +240,41 @@ class LabankApplicationTests {
 		return testBearer;
 	}
 	
-	private Bearer createBearerTypeCNPJ() {
+	private Bearer createBearerTypeCNPJOK() {
 		Bearer testBearer = new Bearer();
 		testBearer.setBearerName("TesteCNPJ");
 		testBearer.setBearerDocument("12345678910123");
 		testBearer.setBearerType(0);
 		return testBearer;
+	}
+	
+	private Account createAccountERROR() {
+		Account testAccount = new Account();
+		testAccount.setAccountNumber("12345");
+		testAccount.setAgency(1);
+		return testAccount;
+	}
+	
+	private Account createAccountOK() {
+		Account testAccount = new Account();
+		testAccount.setAccountNumber("12345");
+		testAccount.setBearer("12345678910");
+		testAccount.setAgency(1);
+		return testAccount;
+	}
+	
+	private TransactionDTO transactionsOK() {
+		TransactionDTO transaction = new TransactionDTO();
+		transaction.setAccountNumber("02451027");
+		transaction.setTransactionAmount(2.0);
+		return transaction;
+	}
+		
+	private TransactionDTO transactionsERROR() {
+		TransactionDTO transaction = new TransactionDTO();
+		transaction.setAccountNumber("02451027");
+		return transaction;
+		
 	}
 
 

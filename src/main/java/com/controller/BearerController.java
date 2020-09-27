@@ -71,6 +71,7 @@ public class BearerController {
 	Bearer updateBearer(@PathVariable (value = "id", required = true) String document, @RequestBody Bearer bearer) throws NotFoundException, InvalidOperationException, InvalidJsonException {
 		log.info("PUT /api/v1/bearer/");
 		validateQueryParams(document);
+		validateUpdateDocument(bearer, document);
 		validateRequestBody(bearer);
 		Bearer reqReturn = service.updateBearer(bearer, document);
 		return reqReturn;
@@ -85,6 +86,12 @@ public class BearerController {
 	private void validateRequestBody(Bearer bearer) throws InvalidJsonException{
 		if(bearer.getBearerDocument() == null || bearer.getBearerName() == null || bearer.getBearerType() == null){
 			throw new InvalidJsonException("Missing or invalid arguments");
+		}
+	}
+	
+	private void validateUpdateDocument(Bearer bearer, String document) throws InvalidOperationException {
+		if(!(bearer.getBearerDocument().equals(document))){
+			throw new InvalidOperationException("Bearer documents doesn't match");
 		}
 	}
 
